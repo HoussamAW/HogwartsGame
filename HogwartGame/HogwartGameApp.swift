@@ -20,6 +20,7 @@ struct HogwartGameApp: App {
         ImmersiveSpace(id: "GameImmersiveView") {
             ImmersiveView()
                 .environment(appModel)
+               
         }
     }
 }

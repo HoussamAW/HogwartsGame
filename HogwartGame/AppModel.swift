@@ -8,8 +8,7 @@
 import SwiftUI
 import Observation
 
-
 @Observable
 final class AppModel {
-    var hasEntered = false
+    var immersiveIsOpen = false
 }

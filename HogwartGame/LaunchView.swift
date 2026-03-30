@@ -7,35 +7,60 @@
 
 import SwiftUI
 
-
 struct LaunchView: View {
+    @Environment(AppModel.self) private var appModel
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
-    @Environment(\.dismissWindow) private var dismissWindow
-    @Environment(AppModel.self) private var appModel
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some View {
         VStack(spacing: 24) {
             Image("Logo")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-            
-            Button {
-                //code
-            } label: {
-                Text("Enter")
-                    .frame(width: 220)
-                    .padding()
-                    .background(Color.orange.opacity(0.3))
-                    .glassBackgroundEffect()
+
+            Button("Enter") {
+                Task {
+                    await openImmersiveIfNeeded()
+                }
             }
-            .offset(y:-180)
+            .frame(width: 220)
+            .padding()
+            .background(Color.orange.opacity(0.3))
+            .glassBackgroundEffect()
+            .offset(y: -180)
             .buttonStyle(.plain)
-            
-        }.task {
-            let result = await openImmersiveSpace(id: "GameImmersiveView")
-            if case .opened = result {
-                dismissWindow(id:"LaunchView")
+        }
+        .task {
+            await openImmersiveIfNeeded()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            Task {
+                if newPhase == .active {
+                    await openImmersiveIfNeeded()
+                } else {
+                    await closeImmersiveIfNeeded()
+                }
             }
         }
+    }
+
+    private func openImmersiveIfNeeded() async {
+        guard !appModel.immersiveIsOpen else { return }
+
+        let result = await openImmersiveSpace(id: "GameImmersiveView")
+
+        if case .opened = result {
+            appModel.immersiveIsOpen = true
+        } else {
+            appModel.immersiveIsOpen = false
+        }
+    }
+
+    private func closeImmersiveIfNeeded() async {
+        guard appModel.immersiveIsOpen else { return }
+
+        await dismissImmersiveSpace()
+        appModel.immersiveIsOpen = false
     }
 }
