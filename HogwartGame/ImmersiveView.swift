@@ -17,7 +17,7 @@ struct ImmersiveView: View {
             RealityView { content in
                 do {
                     let hpDesk = try await ModelEntity(named: "HPDesk")
-                    hpDesk.position = [0, -1.5, -10]
+                    hpDesk.position = [0, -1.5, -10] // x,y,z
                     content.add(hpDesk)
                 } catch {
                     modelLoadingError = "Unable to load 3D model."

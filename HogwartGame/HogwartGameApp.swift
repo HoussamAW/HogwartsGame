@@ -9,14 +9,17 @@ import SwiftUI
 
 @main
 struct HogwartGameApp: App {
+    @State private var appModel = AppModel()
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            LaunchView()
+                .environment(appModel)
         }
         .windowStyle(.plain)
         
         ImmersiveSpace(id: "GameImmersiveView") {
             ImmersiveView()
+                .environment(appModel)
         }
     }
 }
