@@ -9,9 +9,6 @@ import SwiftUI
 import RealityKit
 
 struct ImmersiveView: View {
-    @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
-    @State private var modelLoadingError: String?
-
     var body: some View {
         ZStack(alignment: .bottom) {
             RealityView { content in
@@ -20,7 +17,7 @@ struct ImmersiveView: View {
                     hpDesk.position = [0, -1.5, -10] // x,y,z
                     content.add(hpDesk)
                 } catch {
-                    modelLoadingError = "Unable to load 3D model."
+                    print("Unable to load 3D model: \(error)")
                 }
             }
         }
