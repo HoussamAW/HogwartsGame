@@ -9,16 +9,29 @@ import SwiftUI
 import RealityKit
 
 struct ImmersiveView: View {
+    @State private var game = GameState()
+
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack {
             RealityView { content in
-                do {
-                    let hpDesk = try await ModelEntity(named: "HPDesk")
-                    hpDesk.position = [0, -1.5, -10] // x,y,z
-                    content.add(hpDesk)
-                } catch {
-                    print("Unable to load 3D model: \(error)")
+                if let chamber = try? await ModelEntity(named: "Chamber") {
+                    chamber.position = [0, -1.5, -10]
+                    content.add(chamber)
                 }
+
+                let gameRoot = Entity()
+                gameRoot.name = "GameRoot"
+                content.add(gameRoot)
+            }
+
+            VStack {
+                HStack {
+                    Text("Score: \(game.score)")
+                    Spacer()
+                    Text("Temps: \(game.timeRemaining)")
+                }
+                .padding()
+                Spacer()
             }
         }
         .preferredSurroundingsEffect(.colorMultiply(.black))
