@@ -18,25 +18,34 @@ struct ImmersiveView: View {
     var body: some View {
         ZStack {
             RealityView { content in
-                gameRoot.name = "GameRoot"
-                content.add(gameRoot)
+                if gameRoot.parent == nil {
+                    gameRoot.name = "GameRoot"
+                    content.add(gameRoot)
+                }
                 
                 wandEntity.name = "Wand"
                 wandEntity.position = [0, 1.2, -0.8]
 
                 if wandEntity.parent == nil {
-                        let wandMesh = MeshResource.generateBox(width: 0.025, height: 0.025, depth: 0.28)
-                        let wandMaterial = SimpleMaterial(color: .brown, isMetallic: false)
-                        let wandModel = ModelEntity(mesh: wandMesh, materials: [wandMaterial])
+                    let handleMesh = MeshResource.generateBox(width: 0.018, height: 0.018, depth: 0.24)
+                    let handleMaterial = SimpleMaterial(color: .brown, isMetallic: false)
+                    let handle = ModelEntity(mesh: handleMesh, materials: [handleMaterial])
 
-                        wandModel.position = [0, 0, 0]
-                        wandEntity.name = "Wand"
-                        wandEntity.position = [0.08, 1.05, -0.65]
-                        wandEntity.orientation = simd_quatf(angle: -.pi / 10, axis: [1, 0, 0])
-                        wandEntity.addChild(wandModel)
+                    let tipMesh = MeshResource.generateSphere(radius: 0.018)
+                    let tipMaterial = SimpleMaterial(color: .cyan, isMetallic: false)
+                    let tip = ModelEntity(mesh: tipMesh, materials: [tipMaterial])
 
-                        gameRoot.addChild(wandEntity)
-                    }
+                    tip.position = [0, 0, -0.14]
+
+                    wandEntity.name = "Wand"
+                    wandEntity.position = [0.08, 1.05, -0.65]
+                    wandEntity.orientation = simd_quatf(angle: -.pi / 10, axis: [1, 0, 0])
+
+                    wandEntity.addChild(handle)
+                    wandEntity.addChild(tip)
+
+                    gameRoot.addChild(wandEntity)
+                }
                 
                 if let chamber = try? await ModelEntity(named: "Chamber") {
                     chamber.scale = [5, 5, 5]
