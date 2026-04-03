@@ -13,12 +13,30 @@ struct ImmersiveView: View {
     @State private var game = GameState()
     @State private var gameRoot = Entity()
     @State private var  hasStartedGameLoop = false
+    @State private var wandEntity = Entity()
     
     var body: some View {
         ZStack {
             RealityView { content in
                 gameRoot.name = "GameRoot"
                 content.add(gameRoot)
+                
+                wandEntity.name = "Wand"
+                wandEntity.position = [0, 1.2, -0.8]
+
+                if wandEntity.parent == nil {
+                        let wandMesh = MeshResource.generateBox(width: 0.025, height: 0.025, depth: 0.28)
+                        let wandMaterial = SimpleMaterial(color: .brown, isMetallic: false)
+                        let wandModel = ModelEntity(mesh: wandMesh, materials: [wandMaterial])
+
+                        wandModel.position = [0, 0, 0]
+                        wandEntity.name = "Wand"
+                        wandEntity.position = [0.08, 1.05, -0.65]
+                        wandEntity.orientation = simd_quatf(angle: -.pi / 10, axis: [1, 0, 0])
+                        wandEntity.addChild(wandModel)
+
+                        gameRoot.addChild(wandEntity)
+                    }
                 
                 if let chamber = try? await ModelEntity(named: "Chamber") {
                     chamber.scale = [5, 5, 5]
@@ -57,7 +75,7 @@ struct ImmersiveView: View {
         guard entity.components[TargetComponent.self] != nil else { return }
 
         let targetPosition = entity.position(relativeTo: gameRoot)
-        let startPosition = SIMD3<Float>(0, 1.2, -0.8)
+        let startPosition = wandEntity.position(relativeTo: gameRoot)
 
         spawnSpellFlash(at: startPosition, radius: 0.05)
         spawnSpellBeam(from: startPosition, to: targetPosition)
@@ -82,6 +100,7 @@ struct ImmersiveView: View {
         }
     }
     
+    //create a short-lived flash at a given position to make the spell start or impact visible
     private func spawnSpellFlash(at position: SIMD3<Float>, radius: Float) {
         let mesh = MeshResource.generateSphere(radius: radius)
         let material = SimpleMaterial(color: .cyan, isMetallic: false)
@@ -96,6 +115,7 @@ struct ImmersiveView: View {
         }
     }
     
+    //create a temporary beam between two points to visualize the spell trajectory
     private func spawnSpellBeam(from start: SIMD3<Float>, to end: SIMD3<Float>) {
         let direction = end - start
         let length = simd_length(direction)
