@@ -16,4 +16,11 @@ final class GameState {
     var timeRemaining = 30
     var isGameOver = false
     
+    
+    func reset() {
+            score = 0
+            timeRemaining = 30
+            isGameOver = false
+        }
+    
 }
