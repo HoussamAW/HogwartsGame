@@ -12,6 +12,7 @@ import Observation
 @MainActor
 final class MuseController {
     var isConnected = false
+    var onPrimaryButtonPressed: (() -> Void)?
     private(set) var stylus: GCStylus?
 
     func start() {
@@ -50,6 +51,7 @@ final class MuseController {
 
                 self.isConnected = false
                 self.stylus = nil
+                self.onPrimaryButtonPressed = nil
             }
         }
     }
@@ -57,5 +59,19 @@ final class MuseController {
     private func attach(_ stylus: GCStylus) {
         self.stylus = stylus
         self.isConnected = true
+        bindPrimaryButton(for: stylus)
+    }
+
+    private func bindPrimaryButton(for stylus: GCStylus) {
+        guard let input = stylus.input else { return }
+        guard let primary = input.buttons[.stylusPrimaryButton] else { return }
+
+        primary.pressedInput.pressedDidChangeHandler = { [weak self] _, _, pressed in
+            guard pressed else { return }
+
+            Task { @MainActor [weak self] in
+                self?.onPrimaryButtonPressed?()
+            }
+        }
     }
 }

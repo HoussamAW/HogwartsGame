@@ -11,6 +11,7 @@ import simd
 
 struct ImmersiveView: View {
     @State private var game = GameState()
+    @State private var muse = MuseController()
     @State private var gameRoot = Entity()
 
     var body: some View {
@@ -39,6 +40,12 @@ struct ImmersiveView: View {
                     handleTap(on: value.entity)
                 }
         )
+        .task {
+            muse.onPrimaryButtonPressed = {
+                castSpell()
+            }
+            muse.start()
+        }
         .preferredSurroundingsEffect(.colorMultiply(.black))
     }
     private func handleTap(on entity: Entity) {
@@ -48,6 +55,16 @@ struct ImmersiveView: View {
             entity.removeFromParent()
             game.score += 1
         }
+    
+    private func castSpell() {
+           guard !game.isGameOver else { return }
+
+           if let target = gameRoot.children.first(where: { $0.components[TargetComponent.self] != nil }) {
+               target.removeFromParent()
+               game.score += 1
+           }
+       }
+    
     }
 
 
