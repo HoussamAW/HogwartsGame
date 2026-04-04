@@ -20,6 +20,7 @@ struct LaunchView: View {
             
             Button {
                 Task {
+//                    guard !appModel.immersiveIsOpen else { return }
                     let result = await openImmersiveSpace(id: "GameImmersive")
 
                     if result == .opened {
